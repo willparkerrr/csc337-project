@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="source.js"></script>
+    </head>
+    <body>
+        <nav>
+            <a onclick="sendReq('home')">Home</a>
+            <a onclick="sendReq('create_user')">Create user</a>
+            <a onclick="sendReq('login')">Login</a>
+        </nav>
+        <div>
+            <form action="create_action" method="post">
+                Username: <input type="text" name="username"><br>
+                Password: <input type="password" name="password"><br>
+                User type: <input type="radio" name="usertype" value="student" checked>Student
+                <input type="radio" name="usertype" value="admin">Admin<br>
+                <input type="submit">
+            </form>
+        </div>
+    </body>
+</html>
