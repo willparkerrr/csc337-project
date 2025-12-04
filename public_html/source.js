@@ -30,3 +30,18 @@ function sendReq(url) {
       console.log(err);
     });
 }
+
+function getCourses(){
+    fetch('get_courses')
+    .then(function(res){
+        return res.json()
+    })
+    .then(function(obj){
+        //console.log(obj)
+        var p = document.getElementById('my_p')
+        p.innerHTML = JSON.stringify(obj)
+    })
+    .catch(function(err){
+        console.log(err)
+    })
+}

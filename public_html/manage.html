@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="source.js"></script>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <header>
+            <h1>The University System</h1>
+            <p>A simple university system for creating users and courses</p>
+        </header>
+        <nav>
+            <a onclick="sendReq('home')">Home</a>
+            <a onclick="sendReq('create_user')">Create user</a>
+            <a onclick="sendReq('login')">Login</a>
+            <a onclick="sendReq('manage')">Manage</a>
+        </nav>
+        <div>
+            <form action="mng_action" method="post">
+                Course ID: <input type="text" name="course_id"><br>
+                Course name: <input type="text" name="course_name"><br>
+                Description: <textarea rows="5" cols="15" name="description"></textarea><br>
+                <input type="submit">
+            </form>
+        </div>
+        <footer>
+            &copy; Copyright CSc 337
+        </footer>
+    </body>
+</html>

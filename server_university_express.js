@@ -136,6 +136,14 @@ app.post("/manage", express.json(), function (req, res) {
   res.sendFile(path.join(public_html, "manage.html"));
 });
 
+app.get("/manage", function (req, res) {
+  res.sendFile(path.join(public_html, "manage.html"));
+});
+
+app.get('/view', function(req, res){
+    res.sendFile(path.join(public_html, 'view.html'))
+})
+
 app.post("/mng_action", express.urlencoded(), async function (req, res) {
   var query = req.body;
   var courseObj = {

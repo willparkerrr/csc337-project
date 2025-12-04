@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="source.js"></script>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body onload="getCourses()">
+        <header>
+            <h1>The University System</h1>
+            <p>A simple university system for creating users and courses</p>
+        </header>
+        <nav>
+            <a onclick="sendReq('home')">Home</a>
+            <a onclick="sendReq('create_user')">Create user</a>
+            <a onclick="sendReq('login')">Login</a>
+            <a onclick="sendReq('view')">View courses</a>
+        </nav>
+        <div>
+            Here are the available courses ...
+            <p id="my_p"></p>
+        </div>
+        <footer>
+            &copy; Copyright CSc 337
+        </footer>
+    </body>
+</html>
