@@ -14,55 +14,56 @@ var client = new MongoClient("mongodb://127.0.0.1:27017/");
 var db;
 var coursesCollection;
 var enrollmentsCollection;
+var usersCollection;
 
-var users = [];
-var userFile = "users.txt";
+// var users = [];
+// var userFile = "users.txt";
 
-function addUsers(username, password, usertype) {
-  var s = username + "," + password + "," + usertype + "\n";
-  try {
-    fs.appendFileSync(userFile, s, { encoding: "utf8" });
-  } catch (error) {
-    console.log("Error", error);
-  }
-}
+// function addUsers(username, password, usertype) {
+//   var s = username + "," + password + "," + usertype + "\n";
+//   try {
+//     fs.appendFileSync(userFile, s, { encoding: "utf8" });
+//   } catch (error) {
+//     console.log("Error", error);
+//   }
+// }
 
-function loadUsers() {
-  try {
-    var userString = fs.readFileSync(userFile, { encoding: "utf8" });
-    var userList = userString.split("\n");
-    var returnList = [];
-    for (var i = 0; i < userList.length - 1; i++) {
-      var data = userList[i].split(",");
-      var userObj = { username: data[0], password: data[1], usertype: data[2] };
-      returnList.push(userObj);
-    }
-    return returnList;
-  } catch (err) {
-    return [];
-  }
-}
+// function loadUsers() {
+//   try {
+//     var userString = fs.readFileSync(userFile, { encoding: "utf8" });
+//     var userList = userString.split("\n");
+//     var returnList = [];
+//     for (var i = 0; i < userList.length - 1; i++) {
+//       var data = userList[i].split(",");
+//       var userObj = { username: data[0], password: data[1], usertype: data[2] };
+//       returnList.push(userObj);
+//     }
+//     return returnList;
+//   } catch (err) {
+//     return [];
+//   }
+// }
 
 var sessionList = [];
 
-function checkLogin(username, password) {
-  for (var i = 0; i < users.length; i++) {
-    var cur = users[i];
-    if (cur.username == username && cur.password == password) {
-      return true;
-    }
+async function checkLogin(username, hashedPassword) {
+  try {
+    var user = await usersCollection.findOne({ username: username, password: hashedPassword });
+    return user != null;
+  } catch (err) {
+    console.log("Login check error:", err);
+    return false;
   }
-  return false;
 }
 
-function checkAdmin(username) {
-  for (var i = 0; i < users.length; i++) {
-    var cur = users[i];
-    if (cur.username == username && cur.usertype == "admin") {
-      return true;
-    }
+async function checkAdmin(username) {
+  try {
+    var user = await usersCollection.findOne({ username: username, role: "admin" });
+    return user != null;
+  } catch (err) {
+    console.log("Admin check error:", err);
+    return false;
   }
-  return false;
 }
 
 function checkSession(username) {
@@ -99,9 +100,9 @@ async function isEnrolled(username, courseId) {
   }
 }
 
-function handleHome(req, res) {
+async function handleHome(req, res) {
   var query = req.query;
-  if (checkAdmin(query.username) && checkSession(query.username)) {
+  if (await checkAdmin(query.username) && checkSession(query.username)) {
     res.sendFile(path.join(public_html, "home_admin.html"));
   } else {
     res.sendFile(path.join(public_html, "home.html"));
@@ -112,9 +113,9 @@ app.get("/home", handleHome);
 
 app.get("/", handleHome);
 
-app.post("/home", express.json(), function (req, res) {
+app.post("/home", express.json(), async function (req, res) {
   var query = req.body;
-  if (checkAdmin(query.username) && checkSession(query.username)) {
+  if (await checkAdmin(query.username) && checkSession(query.username)) {
     res.sendFile(path.join(public_html, "home_admin.html"));
   } else {
     res.sendFile(path.join(public_html, "home.html"));
@@ -185,18 +186,22 @@ app.post("/create_user", express.json(), function (req, res) {
   res.sendFile(path.join(public_html, "create_user.html"));
 });
 
-app.post("/create_action", express.urlencoded(), function (req, res) {
+app.post("/create_action", express.urlencoded(), async function (req, res) {
   var query = req.body;
   var hash = crypto.createHash("sha256");
   var hashedPassword = hash.update(query.password).digest("hex");
-  users.push({
+  try{
+    await usersCollection.insertOne({
     username: query.username,
     password: hashedPassword,
     usertype: query.usertype,
-  });
-  console.log("Number of users", users.length);
-  addUsers(query.username, hashedPassword, query.usertype);
+    })
+  // console.log("Number of users", users.length);
   res.sendFile(path.join(public_html, "create_action.html"));
+  } catch (err) {
+    console.log("Error creating user:", err);
+    res.send("Error creating user");
+  }
 });
 
 app.get("/login", function (req, res) {
@@ -207,13 +212,13 @@ app.post("/login", express.urlencoded(), function (req, res) {
   res.sendFile(path.join(public_html, "login.html"));
 });
 
-app.post("/lgn_action", express.urlencoded(), function (req, res) {
+app.post("/lgn_action", express.urlencoded(), async function (req, res) {
   var query = req.body;
   var hash = crypto.createHash("sha256");
   var hashedPassword = hash.update(query.password).digest("hex");
-  if (checkLogin(query.username, hashedPassword)) {
-    res.sendFile(path.join(public_html, "lgn_action.html"));
+  if (await checkLogin(query.username, hashedPassword)) {
     sessionList.push({ username: query.username });
+    res.sendFile(path.join(public_html, "lgn_action.html"));
   } else {
     res.sendFile(path.join(public_html, "lgn_action_failure.html"));
   }
@@ -337,8 +342,8 @@ app.get("/my_courses_page", express.json(), function (req, res) {
 
 app.listen(8080, async function () {
   // Load users from file
-  users = loadUsers();
-  console.log("Loaded", users.length, "user(s)!");
+  // users = loadUsers();
+  //console.log("Loaded", users.length, "user(s)!");
 
   // Connect to MongoDB
   try {
@@ -348,6 +353,8 @@ app.listen(8080, async function () {
     db = client.db("universityDB");
     coursesCollection = db.collection("courses");
     enrollmentsCollection = db.collection("enrollments");
+    usersCollection = db.collection("users");
+
 
     // Create some test courses if none exist
     var courseCount = await coursesCollection.countDocuments();
