@@ -58,7 +58,7 @@ async function checkLogin(username, hashedPassword) {
 
 async function checkAdmin(username) {
   try {
-    var user = await usersCollection.findOne({ username: username, role: "admin" });
+    var user = await usersCollection.findOne({ username: username, usertype: "admin" });
     return user != null;
   } catch (err) {
     console.log("Admin check error:", err);
