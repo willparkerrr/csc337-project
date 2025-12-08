@@ -16,34 +16,6 @@ var coursesCollection;
 var enrollmentsCollection;
 var usersCollection;
 
-// var users = [];
-// var userFile = "users.txt";
-
-// function addUsers(username, password, usertype) {
-//   var s = username + "," + password + "," + usertype + "\n";
-//   try {
-//     fs.appendFileSync(userFile, s, { encoding: "utf8" });
-//   } catch (error) {
-//     console.log("Error", error);
-//   }
-// }
-
-// function loadUsers() {
-//   try {
-//     var userString = fs.readFileSync(userFile, { encoding: "utf8" });
-//     var userList = userString.split("\n");
-//     var returnList = [];
-//     for (var i = 0; i < userList.length - 1; i++) {
-//       var data = userList[i].split(",");
-//       var userObj = { username: data[0], password: data[1], usertype: data[2] };
-//       returnList.push(userObj);
-//     }
-//     return returnList;
-//   } catch (err) {
-//     return [];
-//   }
-// }
-
 var sessionList = [];
 
 async function checkLogin(username, hashedPassword) {
@@ -159,7 +131,7 @@ app.post("/mng_action", express.urlencoded(), async function (req, res) {
   try {
     await coursesCollection.insertOne(courseObj);
     console.log("Created course:", courseObj.course_id);
-    res.send("Course created successfully!");
+    res.sendFile(path.join(public_html, "mng_action.html"));
   } catch (err) {
     console.log("Error creating course:", err);
     res.send("Error creating course");
@@ -196,7 +168,6 @@ app.post("/create_action", express.urlencoded(), async function (req, res) {
     password: hashedPassword,
     usertype: query.usertype,
     })
-  // console.log("Number of users", users.length);
   res.sendFile(path.join(public_html, "create_action.html"));
   } catch (err) {
     console.log("Error creating user:", err);
