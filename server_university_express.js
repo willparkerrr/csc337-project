@@ -233,6 +233,10 @@ app.post("/lgn_action", express.urlencoded(), async function (req, res) {
   }
 });
 
+app.get("/enroll_page", function(req, res) {
+  res.sendFile(path.join(public_html, "enroll.html"));
+})
+
 // ============================================
 // ENROLLMENT ROUTES
 // ============================================
