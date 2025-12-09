@@ -2,7 +2,7 @@ var express = require("express");
 var fs = require("fs");
 var crypto = require("crypto");
 var path = require("path");
-var { MongoClient } = require("mongodb");
+var { MongoClient, ObjectId } = require("mongodb");
 
 var public_html = path.join(__dirname, "public_html");
 
@@ -131,12 +131,50 @@ app.post("/mng_action", express.urlencoded(), async function (req, res) {
   try {
     await coursesCollection.insertOne(courseObj);
     console.log("Created course:", courseObj.course_id);
-    res.sendFile(path.join(public_html, "mng_action.html"));
+    res.sendFile(path.join(public_html, "manage.html"));
   } catch (err) {
     console.log("Error creating course:", err);
     res.send("Error creating course");
   }
 });
+
+app.post("/updt_action", express.urlencoded(), async function (req, res) {
+  var query = req.body;
+
+  try {
+    await coursesCollection.updateOne(
+      {_id: new ObjectId(query._id)},
+      {
+        $set: {
+          course_id: query.course_id, 
+          course_name: query.course_name, 
+          description: query.description, 
+          instructor: query.instructor, 
+          credits: parseInt(query.credits), 
+          semester: query.semester
+        }
+      }
+    )
+
+    console.log("Updated Course:", query.course_id)
+    res.sendFile(path.join(public_html, "manage.html"));
+  } catch (err) {
+    console.log("Error updating course:", err);
+  }
+});
+
+app.post("/delete_course", express.urlencoded(), async function(req, res) {
+  try{
+    await coursesCollection.deleteOne({
+      _id: new ObjectId(req.body._id)
+    })
+
+    console.log("Deleted Course: ", req.body._id)
+    res.sendFile(path.join(public_html, "manage.html"));
+  } catch(err) {
+    console.log("Error deleting course: ", err)
+  }
+})
 
 app.get("/test", function (req, res) {
   res.send("Test route works!");
