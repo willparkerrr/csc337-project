@@ -4,8 +4,6 @@ var crypto = require("crypto");
 var path = require("path");
 var { MongoClient, ObjectId } = require("mongodb");
 
-var public_html = path.join(__dirname, "public_html");
-
 var app = express();
 app.get("/simple_test", function (req, res) {
   res.send("Simple test works!");
@@ -75,9 +73,9 @@ async function isEnrolled(username, courseId) {
 async function handleHome(req, res) {
   var query = req.query;
   if (await checkAdmin(query.username) && checkSession(query.username)) {
-    res.sendFile(path.join(public_html, "home_admin.html"));
+    res.sendFile(path.join(__dirname, "home_admin.html"));
   } else {
-    res.sendFile(path.join(public_html, "home.html"));
+    res.sendFile(path.join(__dirname, "home.html"));
   }
 }
 
@@ -88,9 +86,9 @@ app.get("/", handleHome);
 app.post("/home", express.json(), async function (req, res) {
   var query = req.body;
   if (await checkAdmin(query.username) && checkSession(query.username)) {
-    res.sendFile(path.join(public_html, "home_admin.html"));
+    res.sendFile(path.join(__dirname, "home_admin.html"));
   } else {
-    res.sendFile(path.join(public_html, "home.html"));
+    res.sendFile(path.join(__dirname, "home.html"));
   }
 });
 
@@ -106,15 +104,15 @@ app.get("/get_courses", async function (req, res) {
 });
 
 app.post("/manage", express.json(), function (req, res) {
-  res.sendFile(path.join(public_html, "manage.html"));
+  res.sendFile(path.join(__dirname, "manage.html"));
 });
 
 app.get("/manage", function (req, res) {
-  res.sendFile(path.join(public_html, "manage.html"));
+  res.sendFile(path.join(__dirname, "manage.html"));
 });
 
 app.get('/view', function(req, res){
-    res.sendFile(path.join(public_html, 'view.html'))
+    res.sendFile(path.join(__dirname, 'view.html'))
 })
 
 app.post("/mng_action", express.urlencoded(), async function (req, res) {
@@ -131,7 +129,7 @@ app.post("/mng_action", express.urlencoded(), async function (req, res) {
   try {
     await coursesCollection.insertOne(courseObj);
     console.log("Created course:", courseObj.course_id);
-    res.sendFile(path.join(public_html, "manage.html"));
+    res.sendFile(path.join(__dirname, "manage.html"));
   } catch (err) {
     console.log("Error creating course:", err);
     res.send("Error creating course");
@@ -157,7 +155,7 @@ app.post("/updt_action", express.urlencoded(), async function (req, res) {
     )
 
     console.log("Updated Course:", query.course_id)
-    res.sendFile(path.join(public_html, "manage.html"));
+    res.sendFile(path.join(__dirname, "manage.html"));
   } catch (err) {
     console.log("Error updating course:", err);
   }
@@ -170,7 +168,7 @@ app.post("/delete_course", express.urlencoded(), async function(req, res) {
     })
 
     console.log("Deleted Course: ", req.body._id)
-    res.sendFile(path.join(public_html, "manage.html"));
+    res.sendFile(path.join(__dirname, "manage.html"));
   } catch(err) {
     console.log("Error deleting course: ", err)
   }
@@ -181,19 +179,19 @@ app.get("/test", function (req, res) {
 });
 
 app.get("/source.js", function (req, res) {
-  res.sendFile(path.join(public_html, "source.js"));
+  res.sendFile(path.join(__dirname, "source.js"));
 });
 
 app.get("/style.css", function (req, res) {
-  res.sendFile(path.join(public_html, "style.css"));
+  res.sendFile(path.join(__dirname, "style.css"));
 });
 
 app.get("/create_user", function (req, res) {
-  res.sendFile(path.join(public_html, "create_user.html"));
+  res.sendFile(path.join(__dirname, "create_user.html"));
 });
 
 app.post("/create_user", express.json(), function (req, res) {
-  res.sendFile(path.join(public_html, "create_user.html"));
+  res.sendFile(path.join(__dirname, "create_user.html"));
 });
 
 app.post("/create_action", express.urlencoded(), async function (req, res) {
@@ -206,7 +204,7 @@ app.post("/create_action", express.urlencoded(), async function (req, res) {
     password: hashedPassword,
     usertype: query.usertype,
     })
-  res.sendFile(path.join(public_html, "create_action.html"));
+  res.sendFile(path.join(__dirname, "create_action.html"));
   } catch (err) {
     console.log("Error creating user:", err);
     res.send("Error creating user");
@@ -214,11 +212,11 @@ app.post("/create_action", express.urlencoded(), async function (req, res) {
 });
 
 app.get("/login", function (req, res) {
-  res.sendFile(path.join(public_html, "login.html"));
+  res.sendFile(path.join(__dirname, "login.html"));
 });
 
 app.post("/login", express.urlencoded(), function (req, res) {
-  res.sendFile(path.join(public_html, "login.html"));
+  res.sendFile(path.join(__dirname, "login.html"));
 });
 
 app.post("/lgn_action", express.urlencoded(), async function (req, res) {
@@ -227,14 +225,14 @@ app.post("/lgn_action", express.urlencoded(), async function (req, res) {
   var hashedPassword = hash.update(query.password).digest("hex");
   if (await checkLogin(query.username, hashedPassword)) {
     sessionList.push({ username: query.username });
-    res.sendFile(path.join(public_html, "lgn_action.html"));
+    res.sendFile(path.join(__dirname, "lgn_action.html"));
   } else {
-    res.sendFile(path.join(public_html, "lgn_action_failure.html"));
+    res.sendFile(path.join(__dirname, "lgn_action_failure.html"));
   }
 });
 
 app.get("/enroll_page", function(req, res) {
-  res.sendFile(path.join(public_html, "enroll.html"));
+  res.sendFile(path.join(__dirname, "enroll.html"));
 })
 
 // ============================================
@@ -350,7 +348,7 @@ app.get("/my_courses", async function (req, res) {
 
 // Serve my courses page
 app.get("/my_courses_page", express.json(), function (req, res) {
-  res.sendFile(path.join(public_html, "my_courses.html"));
+  res.sendFile(path.join(__dirname, "my_courses.html"));
 });
 
 app.listen(8080, async function () {
